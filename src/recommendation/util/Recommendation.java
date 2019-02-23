@@ -17,7 +17,7 @@ public class Recommendation {
         if(userRating==null) return null;
 
         Map<Integer,Double> recommendationList = new HashMap<>();
-        Map<Integer,Double> totalSim  = new HashMap<>();
+        Map<Integer,Double[]> totalSim  = new HashMap<>();
         Map<Integer,Double> rating = userRating.get(userid);
         List<SimilarRating> similarRatings;
 
@@ -26,6 +26,7 @@ public class Recommendation {
             similarRatings = SimilarRatingDao.getSimilarRating((Integer) entry.getKey());
             double eval = (Double) entry.getValue();
             if(similarRatings==null) continue;
+
 //            遍历相近的物品
             for(SimilarRating si:similarRatings)
             {
@@ -35,17 +36,35 @@ public class Recommendation {
                 //相识度评价值加权之和
                 double score = recommendationList.getOrDefault(si.getSi_item(),0.0);
                 recommendationList.put(si.getSi_item(),si.getScore()*eval+score);
-
+                Double[] ar = new Double[2];
+                ar[0] = 0.0;
+                ar[1] = 0.0;
                 //相识度之和
-                double similar = totalSim.getOrDefault(si.getSi_item(),0.0);
-                totalSim.put(si.getSi_item(),similar+si.getScore());
+                Double similar[] = totalSim.getOrDefault(si.getSi_item(),ar);
+                similar[0] +=si.getScore();
+                similar[1] +=1;
+                totalSim.put(si.getSi_item(),similar);
 
             }
         }
-
+        List<Map.Entry> removeList = new ArrayList<>();
         for(Map.Entry entry : recommendationList.entrySet())
         {
-            recommendationList.put((Integer)entry.getKey(),(Double)entry.getValue()/totalSim.get(entry.getKey()));
+            //加权数小于两次的，从列表中去除
+            if(totalSim.get(entry.getKey())[1]<=3.5)
+            {
+                removeList.add(entry);
+            }
+            else
+            {
+                recommendationList.put((Integer)entry.getKey(),(Double)entry.getValue()/totalSim.get(entry.getKey())[0]);
+            }
+
+        }
+
+        for(Map.Entry entry:removeList)
+        {
+            recommendationList.remove(entry.getKey());
         }
 
         return recommendationList;

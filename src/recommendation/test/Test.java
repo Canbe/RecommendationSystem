@@ -1,8 +1,5 @@
 package recommendation.test;
 
-import recommendation.dao.RatingDao;
-import recommendation.domain.Rating;
-import recommendation.util.JdbcUtil;
 import recommendation.util.Recommendation;
 
 import java.sql.SQLException;
@@ -14,6 +11,8 @@ public class Test {
         Map<Integer,Double> map = Recommendation.getRecommendation(3);
         Set<Map.Entry<Integer,Double>> set = map.entrySet();
         List<Map.Entry<Integer,Double>> list = new ArrayList<>(set);
+
+        //对获取的value值进行排序
         Collections.sort(list, new Comparator<Map.Entry<Integer,Double>>() {
 
             @Override
