@@ -10,6 +10,14 @@ import java.util.List;
 
 public class RatingDao {
 
+    public static int add(Rating rating) throws SQLException {
+        String sql = "insert into rating (id,item,user,score) values(default,?,?,?)";
+        Connection conn = JdbcUtil.getConnection();
+        int row = JdbcUtil.getQueryRunner().update(conn,sql,rating.getItem(),rating.getUser(),rating.getScore());
+        conn.close();
+        return row;
+    }
+
     public static List<Rating> getRatingByItem(Integer itemid) throws SQLException {
 
         String sql = "select * from rating where item = ? ";

@@ -1,6 +1,5 @@
 package recommendation.dao;
 
-import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import recommendation.domain.SimilarRating;
 import recommendation.util.JdbcUtil;
