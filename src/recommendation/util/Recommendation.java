@@ -128,25 +128,23 @@ public class Recommendation {
 
         //获取rating数据表里的item数据集
         List items = RatingDao.getAllItems();
-        List<Comparable> ThreadList = new ArrayList<>();
-
-        for(int i=0;i<10;i++)
-        {
-            ThreadList.add(new Comparable());
-        }
 
         Comparable temp = null;
-        for(int i=0;i<items.size();i++)
+        int len = items.size();
+        int total = len*len;
+        for(int i=0;i<len;i++)
         {
-            for(int j=0;j<items.size();j++)
+            int j = 0;
+            for(;j<len;j++)
             {
-                if(i==j) continue;
+                if (i==j) continue;
                 temp = new Comparable();
-                temp.setValues(i,j);
+                temp.setValues((Integer) items.get(i),(Integer) items.get(j));
                 temp.start();
-                break;
+                System.out.println(i*len+"/"+total);
             }
         }
+
 
     }
 

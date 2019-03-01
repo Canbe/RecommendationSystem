@@ -12,12 +12,12 @@ public class Test {
         //用于更新数据库中的相似物品库
         Recommendation.UpdateItemSimilarMessage();
 
-        List<Map.Entry<Integer,Double>> list  = Recommendation.getRecommendation(3);
+//        List<Map.Entry<Integer,Double>> list  = Recommendation.getRecommendation(3);
 
-        for(Map.Entry entry:list)
-        {
-            System.out.println((Integer)entry.getKey()+"  "+(Double)entry.getValue());
-        }
+//        for(Map.Entry entry:list)
+//        {
+//            System.out.println((Integer)entry.getKey()+"  "+(Double)entry.getValue());
+//        }
 
     }
 }
