@@ -2,7 +2,6 @@ package recommendation.util;
 
 import recommendation.dao.RatingDao;
 import recommendation.dao.SimilarRatingDao;
-import recommendation.domain.Rating;
 import recommendation.domain.SimilarRating;
 
 import java.sql.SQLException;
@@ -10,10 +9,14 @@ import java.util.*;
 
 public class Recommendation {
 
-    public static Map<Integer,Double> getRecommendation(Integer userid) throws SQLException {
+    //最少相识物品数的配置
+    public static double least_similar_item = 3.5;
+
+
+    //返回从大到小的推荐列表
+    public static List<Map.Entry<Integer,Double>> getRecommendation(Integer userid) throws SQLException {
 
         Map<Integer,Map<Integer,Double>> userRating = RatingMapUtil.ratingListToUserMap(RatingDao.getRatingByUser(userid));
-        System.out.println(userRating.size());
         if(userRating==null) return null;
 
         Map<Integer,Double> recommendationList = new HashMap<>();
@@ -50,8 +53,8 @@ public class Recommendation {
         List<Map.Entry> removeList = new ArrayList<>();
         for(Map.Entry entry : recommendationList.entrySet())
         {
-            //加权数小于两次的，从列表中去除
-            if(totalSim.get(entry.getKey())[1]<=3.5)
+            //加权数小于限制最小值的，去除该项
+            if(totalSim.get(entry.getKey())[1]<=Recommendation.least_similar_item)
             {
                 removeList.add(entry);
             }
@@ -67,7 +70,21 @@ public class Recommendation {
             recommendationList.remove(entry.getKey());
         }
 
-        return recommendationList;
+        Set<Map.Entry<Integer,Double>> set = recommendationList.entrySet();
+        List<Map.Entry<Integer,Double>> list = new ArrayList<>(set);
+
+        //对获取的value值进行排序
+        Collections.sort(list, new Comparator<Map.Entry<Integer,Double>>() {
+
+            @Override
+            public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2) {
+
+                if(o1.getValue()>o2.getValue()) return -1;
+                return 1;
+            }
+        });
+
+        return list;
     }
 
     //计算item1和item2的欧几里得距离
@@ -108,29 +125,30 @@ public class Recommendation {
 
     //更新数据库中的物品相似度信息
     public static void UpdateItemSimilarMessage() throws SQLException {
-        SimilarRating t = new SimilarRating();
-        //数据库中的物品1-100 两两比较
-        for(int i=1;i<=100;i++)
+
+        //获取rating数据表里的item数据集
+        List items = RatingDao.getAllItems();
+        List<Comparable> ThreadList = new ArrayList<>();
+
+        for(int i=0;i<10;i++)
         {
-            for(int j=1;j<=100;j++)
+            ThreadList.add(new Comparable());
+        }
+
+        Comparable temp = null;
+        for(int i=0;i<items.size();i++)
+        {
+            for(int j=0;j<items.size();j++)
             {
-                //不和自己比较
                 if(i==j) continue;
-                double rating = OuclidDistance(RatingMapUtil.ratingListToItemMap(RatingDao.getRatingByTwoItem(i,j)),i,j);
-                if(rating<=0.0) continue;
-
-                t.setItem(i);
-                t.setSi_item(j);
-                t.setScore(rating);
-
-                if(SimilarRatingDao.updateRating(t)==0)
-                {
-                    SimilarRatingDao.insertRating(t);
-                }
-
+                temp = new Comparable();
+                temp.setValues(i,j);
+                temp.start();
+                break;
             }
         }
 
     }
+
 
 }

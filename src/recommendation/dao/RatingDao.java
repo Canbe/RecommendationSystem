@@ -1,6 +1,7 @@
 package recommendation.dao;
 
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import recommendation.domain.Rating;
 import recommendation.util.JdbcUtil;
 
@@ -62,6 +63,17 @@ public class RatingDao {
         conn.close();
 
         return ratings;
+    }
+
+    public static List<Integer> getAllItems() throws SQLException {
+        String sql = "select distinct item from rating";
+        Connection conn = JdbcUtil.getConnection();
+
+        List<Integer> list = JdbcUtil.getQueryRunner().query(conn, sql,new ColumnListHandler<Integer>());
+
+        conn.close();
+
+        return list;
     }
 
 }
